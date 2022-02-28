@@ -5,7 +5,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "commonjs",
-    "target": "ES2021",
+    "target": "ES2015",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
