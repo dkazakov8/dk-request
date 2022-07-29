@@ -11,18 +11,13 @@
 - validates request and response by `ts-interface-checker`. Checkers could be created using
 [dk-file-generator](https://github.com/dkazakov8/dk-file-generator)
 - omits extraneous params from response using [dk-checker-remove-extraneous](https://github.com/dkazakov8/dk-checker-remove-extraneous)
-- currently supports only `POST` xhr requests
 - supports mocks
 - supports file downloads if response type is `blob` with customizable file name
 - supports FormData requests
 - supports `url` as function
 - supports custom headers
 - works in Node.js
-
-In future may be developed:
-- other than `POST` requests
-- handle and validate only some parts of response
-- use some `requestParams` in `url` only, filter them in actual request data
+- request params starting with `omit_` are used in in `url` creation but omitted in body
 
 ### Installation
 
@@ -87,6 +82,8 @@ way response validation will be omitted.
 `mock` (optional) - `TypeResponse`, there will be no actual request to API, but validations are
 applied
 
+`method` (optional, default `POST`) - `'GET' | 'POST' | 'PUT' | 'DELETE'`
+
 `headers` (optional) - `Record<string, any>`
 
 `extraneousLogger` (optional) - logger for [dk-checker-remove-extraneous](https://github.com/dkazakov8/dk-checker-remove-extraneous)
@@ -94,6 +91,24 @@ applied
 `validatorRequest` (optional) - `Checker`
 
 `validatorResponse` (optional) - `Checker`
+
+`disableCredentials` (optional) - `boolean` - restrict or allow sending of cookies along with request
+
+`omitResponseValidation` (optional) - `boolean` - restrict or allow response validation
+
+`afterRequestInterceptor` (optional) - `(response: AxiosResponse) => Promise<void>` - a method for
+performing some manipulations with response, like checking `response.headers` (ex. server sends
+JWT token in headers)
+
+```typescript
+afterRequestInterceptor: (axiosResponse) => {
+  const newToken = axiosResponse.headers.authorization;
+
+  if (newToken) setTokenToStore(newToken);
+
+  return Promise.resolve();
+}
+```
 
 `downloadFileNameGetter` (optional) - `(response: AxiosResponse) => string` - a method for
 defining custom downloaded file name, ex.

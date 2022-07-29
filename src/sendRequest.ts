@@ -6,22 +6,37 @@ import { downloadBlobAsFile } from './utils/downloadBlobAsFile';
 export function sendRequest({
   url,
   mock,
+  method,
   headers,
   requestParams,
+  disableCredentials,
   downloadFileNameGetter,
+  afterRequestInterceptor,
 }: TypeRequestParams) {
   if (mock) return Promise.resolve(mock);
 
+  const { formData, downloadAsFile, ...requestParamsCleared } = requestParams;
+
+  const urlCleared = typeof url === 'function' ? url(requestParams) : url;
+
+  Object.keys(requestParamsCleared).forEach((key) => {
+    if (key.includes('omit_')) delete requestParamsCleared[key];
+  });
+
   return axios({
-    url: typeof url === 'function' ? url(requestParams) : url,
-    data: requestParams.formData || requestParams,
-    method: 'POST',
+    url: urlCleared,
+    [method === 'GET' ? 'params' : 'data']: formData || requestParamsCleared,
+    method: method || 'POST',
     headers,
-    responseType: requestParams.downloadAsFile ? 'blob' : undefined,
-    withCredentials: true,
+    responseType: downloadAsFile ? 'blob' : undefined,
+    withCredentials: !disableCredentials,
   }).then((response) => {
-    if (requestParams.downloadAsFile) {
+    if (downloadAsFile) {
       downloadBlobAsFile(response.data as Blob, downloadFileNameGetter?.(response) || 'result');
+    }
+
+    if (afterRequestInterceptor) {
+      return afterRequestInterceptor(response).then(() => response.data);
     }
 
     return response.data;

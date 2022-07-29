@@ -13,9 +13,13 @@ export type TypeRequestParams = {
   requestParams: Record<string, any> & { formData?: any; downloadAsFile?: boolean };
 
   mock?: any;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: TypeHeaders;
   extraneousLogger?: TypeLogger;
   validatorRequest?: Checker;
   validatorResponse?: Checker;
+  disableCredentials?: boolean;
+  omitResponseValidation?: boolean;
   downloadFileNameGetter?: (response: AxiosResponse) => string;
+  afterRequestInterceptor?: (response: AxiosResponse) => Promise<void>;
 };

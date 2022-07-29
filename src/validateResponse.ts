@@ -5,12 +5,18 @@ import { createError } from './utils/createError';
 import { TypeRequestParams, TypeResponse } from './types/TypeRequestParams';
 
 export function validateResponse(
-  { apiName, requestParams, validatorResponse, extraneousLogger }: TypeRequestParams,
+  {
+    apiName,
+    requestParams,
+    extraneousLogger,
+    validatorResponse,
+    omitResponseValidation,
+  }: TypeRequestParams,
   response: TypeResponse
 ): TypeResponse | void {
   if (requestParams?.downloadAsFile) return undefined;
 
-  if (!validatorResponse) return response;
+  if (!validatorResponse || omitResponseValidation) return response;
 
   try {
     validatorResponse.check(response);

@@ -126,6 +126,25 @@ describe('Test request', () => {
     });
   });
 
+  it('Success response no validation', () => {
+    const data = JSON.parse(JSON.stringify(responseExpected));
+
+    data.items[0].name = null;
+
+    nock('https://google.com').post('/api/get-items').reply(SUCCESS_HTTP_CODE, data);
+
+    return request({
+      url: 'https://google.com/api/get-items',
+      apiName: 'getItems',
+      requestParams: { id: 'id' },
+      validatorRequest: validators.request,
+      validatorResponse: validators.response,
+      omitResponseValidation: true,
+    }).then((response) => {
+      expect(response).to.deep.eq(data);
+    });
+  });
+
   it('Wrong data response', () => {
     const data = JSON.parse(JSON.stringify(responseExpected));
 
